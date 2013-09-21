@@ -12,7 +12,7 @@ node_t *buildTree(FILE *fp)
 {
    char input, buffer[1028];
    node_t *s, *root;
-   int i = 0, length, srch;
+   int i = 0, length, srch, line = 1;
 
    root = NULL;
 
@@ -20,41 +20,54 @@ node_t *buildTree(FILE *fp)
 
    if(fp) {
       while((input = fgetc(fp)) != EOF) {
-	     if(isspace(input)) {
-		    length = strlen(buffer);
+		 if(isdigit(input) != 0 || isalpha(input) != 0 || isspace(input) != 0) {
+			if(input == '\n') {
+               line++;
+			}
+	        if(isspace(input)) {
+		       length = strlen(buffer);
 
-			srch = 0;
-			// Search tree to see if node exists already
-			// and add word to that node if not a duplicate
-			srch = treeSearch(root, length, buffer);
-
-			// If node doesn't exists, create it and insert
-			if(!srch) {
-			   // Create node if needed
-			   s = (node_t *) malloc(sizeof(node_t));
-			   s->list = (node_l *) malloc(sizeof(node_l));
-			   s->wordSize = length;
-			   s->left = NULL;
-			   s->right = NULL;
-
-			   strcpy(s->list->word, buffer);
-			   s->list->next = NULL;
-
-			   // Insert into tree
-			   if(root == NULL) {
-		          root = s;
-			   } else {
-			      root = treeInsert(root, s);
+			   if(length > 8) {
+			      printf("Error on line %d! String %s longer than 8 characters!\n", line, buffer);
+				  exit(EXIT_FAILURE);
 			   }
-            }
-			// Clear buffer
-			memset(buffer, '\0', sizeof(buffer));
-			i = 0;
-		 } else {
-		    buffer[i] = input;
-			i++;
+
+			   srch = 0;
+			   // Search tree to see if node exists already
+			   // and add word to that node if not a duplicate
+			   srch = treeSearch(root, length, buffer);
+
+			   // If node doesn't exists, create it and insert
+			   if(!srch) {
+			      // Create node if needed
+			      s = (node_t *) malloc(sizeof(node_t));
+			      s->list = (node_l *) malloc(sizeof(node_l));
+			      s->wordSize = length;
+			      s->left = NULL;
+			      s->right = NULL;
+
+			      strcpy(s->list->word, buffer);
+			      s->list->next = NULL;
+
+			      // Insert into tree
+			      if(root == NULL) {
+		             root = s;
+			      } else {
+			         root = treeInsert(root, s);
+			      }
+               }
+			   // Clear buffer
+			   memset(buffer, '\0', sizeof(buffer));
+			   i = 0;
+		    } else {
+		       buffer[i] = input;
+			   i++;
+		    }
+         } else {
+            printf("Error on line %d! Char %c not a valid character!\n", line, input);
+            exit(EXIT_FAILURE); 
 		 }
-      }
+	  }
    }
 
    fclose(fp);
